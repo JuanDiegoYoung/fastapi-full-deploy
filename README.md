@@ -8,7 +8,7 @@ It is designed to be packaged with **Docker**, pushed to **AWS ECR**, and deploy
 
 
 Estructura del proyecto:
-
+```
 ml-api/
 ├── app/          # Lógica de la API y carga del modelo
 ├── model/        # Modelo entrenado
@@ -17,7 +17,7 @@ ml-api/
 ├── train_model.py
 ├── requirements.txt
 ├── venv/
-
+```
 
 
 ## Technologies Used
