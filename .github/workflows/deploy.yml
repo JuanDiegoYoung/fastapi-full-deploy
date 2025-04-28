@@ -32,8 +32,9 @@ jobs:
 
     - name: Run tests
       run: |
-        export PYTHONPATH=$GITHUB_WORKSPACE/src
+        export PYTHONPATH=$GITHUB_WORKSPACE/src:$PYTHONPATH
         pytest tests/
+
 
 
 
