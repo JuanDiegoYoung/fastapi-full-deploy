@@ -2,17 +2,17 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 
-# Mockeamos joblib.load antes de que main.py sea importado
-with patch('src.main.joblib.load') as mock_load:
-    mock_load.return_value = "mocked_model"  # O lo que sea que esperes como "modelo"
+# Mockear joblib.load antes de que `main.py` sea importado
+@patch('src.main.joblib.load')  # Mockear `joblib.load` en `src.main` 
+def test_predict(mock_load):
+    mock_load.return_value = "mocked_model"  # Simular la carga del modelo
     
-    from src.main import app  # Importamos app solo después de aplicar el mock
+    # Importar `app` después de aplicar el mock
+    from src.main import app  # Importamos `app` solo después de haber mockeado
 
-client = TestClient(app)
+    client = TestClient(app)
 
-# Test para /predict
-def test_predict():
-    # Enviar una solicitud POST con un cuerpo de ejemplo
+    # Test para /predict
     response = client.post("/predict", json={"tamaño": 10})
     
     # Verificar que la respuesta tenga un código de estado 200
