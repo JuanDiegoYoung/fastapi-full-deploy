@@ -32,7 +32,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest test_api.py
+        pytest tests/
 
     - name: Log in to Amazon ECR
       id: login-ecr
