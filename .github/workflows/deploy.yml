@@ -1,52 +1,37 @@
-name: Deploy
+import pytest
+from fastapi.testclient import TestClient
+from unittest.mock import patch
 
-on:
-  push:
-    branches:
-      - main
+client = TestClient(app)
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# Mockear joblib.load antes de importar el app para evitar que se intente cargar el modelo real
+@pytest.fixture(scope="module", autouse=True)
+def mock_model_loading():
+    with patch('src.main.joblib.load') as mock_load:
+        mock_load.return_value = "mocked_model"  # O lo que sea que esperes como "modelo"
+        yield mock_load
 
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+# Test para /predict
+def test_predict(mock_model_loading):
+    # Enviar una solicitud POST con un cuerpo de ejemplo
+    response = client.post("/predict", json={"tamaño": 10})
+    
+    # Verificar que la respuesta tenga un código de estado 200
+    assert response.status_code == 200
+    
+    # Verificar que la respuesta tenga el tipo correcto
+    response_json = response.json()
+    assert "precio_estimado" in response_json
+    assert isinstance(response_json["precio_estimado"], float)
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run tests
-      run: |
-        export PYTHONPATH=$GITHUB_WORKSPACE/src:$PYTHONPATH
-        pytest tests/
-
-
-
-
-    - name: Log in to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push Docker image
-      env:
-        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        AWS_REGION: us-east-1
-      run: |
-        docker build -t fastapi-model .
-        docker tag fastapi-model:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/fastapi-model:latest
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/fastapi-model:latest
+# Test para /fallar
+def test_fallar():
+    # Enviar una solicitud GET al endpoint que genera un error
+    response = client.get("/fallar")
+    
+    # Verificar que la respuesta tenga un código de estado 500 (Error Interno del Servidor)
+    assert response.status_code == 500
+    
+    # Verificar que el mensaje de error esté presente
+    response_json = response.json()
+    assert "detail" in response_json
