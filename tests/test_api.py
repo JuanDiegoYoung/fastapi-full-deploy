@@ -5,12 +5,12 @@ from unittest.mock import patch
 # Mockear joblib.load antes de que main.py sea importado
 @pytest.fixture(scope="module", autouse=True)
 def mock_model_loading():
-    with patch('src.main.joblib.load') as mock_load:
-        mock_load.return_value = "mocked_model"  # Simular la carga del modelo
-        yield mock_load  # Nos aseguramos de que el mock esté disponible
+    with patch('joblib.load') as mock_load:  # Usamos la ruta correcta para joblib.load
+        mock_load.return_value = "mocked_model"  # Simulamos que se carga el modelo
+        yield mock_load  # Aplicamos el mock antes de que se ejecute el código de main.py
 
 # Importar `app` después de haber mockeado
-from src.main import app
+from src.main import app  # Asegurándonos de que `main.py` se importa después del mock
 
 client = TestClient(app)
 
