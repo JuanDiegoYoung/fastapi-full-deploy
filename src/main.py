@@ -1,5 +1,4 @@
-from fastapi import FastAPI
-from fastapi import Request, HTTPException, Depends
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 import joblib
@@ -23,9 +22,9 @@ def get_api_key(api_key: str = Depends(api_key_header)):
     return api_key
 
 logging.basicConfig(
-    level=logging.INFO, #No muestra DEBUG
-    format="%(asctime)s [%(levelname)s] %(message)s", #hora, nivel del mensaje, contenido
-    handlers=[ #Lo guarda en un archivo
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
         logging.FileHandler("app.log"),
         logging.StreamHandler()
     ]
@@ -36,12 +35,13 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 Instrumentator().instrument(app).expose(app)
 
-# Cargar el modelo entrenado
-model = joblib.load("model/model.pkl")
-
 # Definir el schema del input
 class Item(BaseModel):
     tamaño: float
+
+# Cargar el modelo dentro de la función
+def load_model():
+    return joblib.load("model/model.pkl")
 
 @app.get("/")
 def read_root(api_key: str = Depends(get_api_key)):
@@ -51,6 +51,10 @@ def read_root(api_key: str = Depends(get_api_key)):
 @app.post("/predict")
 def predict_price(item: Item, api_key: str = Depends(get_api_key)):
     logger.info("Predicción ejecutada con éxito")
+    
+    # Cargar el modelo solo cuando sea necesario
+    model = load_model()
+    
     X = np.array([[item.tamaño]])
     prediction = model.predict(X)
     return {"tamaño": item.tamaño, "precio_estimado": prediction[0]}
