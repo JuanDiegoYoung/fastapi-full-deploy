@@ -9,14 +9,15 @@ It is designed to be packaged with **Docker**, pushed to **AWS ECR**, and deploy
 
 Estructura del proyecto:
 ```
-ml-api/
-├── app/          # Lógica de la API y carga del modelo
-├── model/        # Modelo entrenado
-│   └── model.pkl
-├── main.py       # Entrypoint del server FastAPI
-├── train_model.py
-├── requirements.txt
-├── venv/
+app/ ├── main.py ├── train_model.py
+
+configs/ ├── fastapi-deployment.yaml ├── fastapi-service.yaml ├── prometheus-deployment.yaml ├── prometheus-configmap.yaml
+
+tests/ ├── test_api.py
+
+.github/ └── workflows/ └── deploy.yml
+
+README.md requirements.txt Dockerfile .gitignore
 ```
 
 
