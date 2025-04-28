@@ -9,15 +9,28 @@ It is designed to be packaged with **Docker**, pushed to **AWS ECR**, and deploy
 
 Estructura del proyecto:
 ```
-app/ ├── main.py ├── train_model.py
+app/
+├── main.py
+├── train_model.py
 
-configs/ ├── fastapi-deployment.yaml ├── fastapi-service.yaml ├── prometheus-deployment.yaml ├── prometheus-configmap.yaml
+configs/
+├── fastapi-deployment.yaml
+├── fastapi-service.yaml
+├── prometheus-deployment.yaml
+├── prometheus-configmap.yaml
 
-tests/ ├── test_api.py
+tests/
+├── test_api.py
 
-.github/ └── workflows/ └── deploy.yml
+.github/
+└── workflows/
+    └── deploy.yml
 
-README.md requirements.txt Dockerfile .gitignore
+README.md
+requirements.txt
+Dockerfile
+.gitignore
+
 ```
 
 
