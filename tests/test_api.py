@@ -2,21 +2,17 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 
-# Mockear joblib.load antes de importar `app`
-@pytest.fixture(scope="module", autouse=True)
-def mock_model_loading():
-    with patch('src.main.joblib.load') as mock_load:
-        mock_load.return_value = "mocked_model"  # Simular la carga del modelo
-        yield mock_load  # Nos aseguramos de que el mock esté disponible
+# Aplicar el mock antes de importar `main.py`
+@patch('src.main.joblib.load')
+def test_predict(mock_load):
+    mock_load.return_value = "mocked_model"  # Simular el modelo cargado
+    
+    # Ahora importamos `app` después de haber aplicado el mock
+    from src.main import app  # Importar `app` después de que el mock esté activo
 
-# Importar `app` después de haber mockeado
-from src.main import app
+    client = TestClient(app)
 
-client = TestClient(app)
-
-# Test para /predict
-def test_predict(mock_model_loading):
-    # Enviar una solicitud POST con un cuerpo de ejemplo
+    # Test para /predict
     response = client.post("/predict", json={"tamaño": 10})
     
     # Verificar que la respuesta tenga un código de estado 200
@@ -32,3 +28,9 @@ def test_fallar():
     # Enviar una solicitud GET al endpoint que genera un error
     response = client.get("/fallar")
     
+    # Verificar que la respuesta tenga un código de estado 500 (Error Interno del Servidor)
+    assert response.status_code == 500
+    
+    # Verificar que el mensaje de error esté presente
+    response_json = response.json()
+    assert "detail" in response_json
