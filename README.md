@@ -6,7 +6,6 @@ It is designed to be packaged with **Docker**, pushed to **AWS ECR**, and deploy
 ## Project Structure
 
 
-
 Estructura del proyecto:
 ```
 app/
