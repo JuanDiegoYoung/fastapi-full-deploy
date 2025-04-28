@@ -32,9 +32,9 @@ jobs:
 
     - name: Run tests
       run: |
-        cd $GITHUB_WORKSPACE
         export PYTHONPATH=$GITHUB_WORKSPACE/src
         pytest tests/
+
 
 
     - name: Log in to Amazon ECR
