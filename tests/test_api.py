@@ -3,12 +3,12 @@ from fastapi.testclient import TestClient
 from unittest.mock import patch
 
 # Aplicar el mock antes de importar `main.py`
-@patch('src.main.joblib.load')
+@patch('src.main.joblib.load')  # Mockear joblib.load en src.main
 def test_predict(mock_load):
-    mock_load.return_value = "mocked_model"  # Simular el modelo cargado
+    mock_load.return_value = "mocked_model"  # Simular la carga del modelo
     
-    # Ahora importamos `app` después de haber aplicado el mock
-    from src.main import app  # Importar `app` después de que el mock esté activo
+    # Importar `app` después de haber mockeado
+    from src.main import app  # Importar app solo después de que el mock esté activo
 
     client = TestClient(app)
 
