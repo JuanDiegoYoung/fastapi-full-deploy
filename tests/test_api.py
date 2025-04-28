@@ -1,12 +1,15 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 # Mockear joblib.load antes de que main.py sea importado
 @pytest.fixture(scope="module", autouse=True)
 def mock_model_loading():
     with patch('src.main.joblib.load') as mock_load:
-        mock_load.return_value = "mocked_model"
+        # Crear un mock para el modelo que tendrá el método 'predict'
+        mock_model = MagicMock()
+        mock_model.predict.return_value = [100.0]  # Simulamos que la predicción es 100.0
+        mock_load.return_value = mock_model  # Hacemos que joblib.load devuelva este modelo mockeado
         yield mock_load
 
 # Importar `app` después de aplicar el mock
